@@ -3,7 +3,7 @@
  * @Author: 星年 && jixingnian@gmail.com
  * @Date: 2025-11-24 14:07:05
  * @LastEditors: xingnian jixingnian@gmail.com
- * @LastEditTime: 2025-11-24 16:45:37
+ * @LastEditTime: 2025-11-24 20:38:08
  * @FilePath: \xn_esp32_web_mqtt_manager\xn_mqtt_server\config.php
  * @Description: 基础配置
  * 

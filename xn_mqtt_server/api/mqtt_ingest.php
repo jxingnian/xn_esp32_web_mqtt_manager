@@ -130,6 +130,48 @@ if ($topic !== '') {
     }
 }
 
+// 处理 WiFi 状态上报与已保存列表上报：
+//  - xn/esp/wifi/<device_id>/status 上报当前 WiFi 连接状态（JSON）
+//  - xn/esp/wifi/<device_id>/saved  上报已保存 WiFi 列表（JSON）
+if ($topic !== '' && $payload !== '') {
+    $wifiStatusPrefix = XN_MQTT_UPLINK_BASE_TOPIC . '/wifi/' . $clientId . '/status';
+    $wifiSavedPrefix  = XN_MQTT_UPLINK_BASE_TOPIC . '/wifi/' . $clientId . '/saved';
+
+    $needUpdateMeta = false;
+    $meta           = [];
+
+    if (!empty($device['meta_json'])) {
+        $decoded = json_decode($device['meta_json'], true);
+        if (is_array($decoded)) {
+            $meta = $decoded;
+        }
+    }
+
+    if (strpos($topic, $wifiStatusPrefix) === 0) {
+        $status = json_decode($payload, true);
+        if (is_array($status)) {
+            $meta['wifi_status'] = $status;
+            $needUpdateMeta      = true;
+        }
+    } elseif (strpos($topic, $wifiSavedPrefix) === 0) {
+        $saved = json_decode($payload, true);
+        if (is_array($saved)) {
+            $meta['wifi_saved'] = $saved;
+            $needUpdateMeta     = true;
+        }
+    }
+
+    if ($needUpdateMeta) {
+        $metaJson = json_encode($meta, JSON_UNESCAPED_UNICODE);
+        $updMeta2 = $db->prepare('UPDATE devices SET meta_json = :meta, updated_at = :u WHERE id = :id');
+        $updMeta2->execute([
+            ':meta' => $metaJson,
+            ':u'    => $now,
+            ':id'   => $device['id'],
+        ]);
+    }
+}
+
 // 如需根据 topic / payload 做更进一步的业务（如注册、配置），
 // 可在此处解析 $topic / $payload 并更新 meta_json 等字段。
 

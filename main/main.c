@@ -2,8 +2,8 @@
  * @Author: 星年 jixingnian@gmail.com
  * @Date: 2025-11-22 13:43:50
  * @LastEditors: xingnian jixingnian@gmail.com
- * @LastEditTime: 2025-11-24 15:09:13
- * @FilePath: \xn_web_mqtt_manager\main\main.c
+ * @LastEditTime: 2025-11-24 21:28:55
+ * @FilePath: \xn_esp32_web_mqtt_manager\main\main.c
  * @Description: esp32 WEB mqtt管理组件 By.星年
  */
 
@@ -15,6 +15,7 @@
 #include "esp_system.h"
 #include "xn_wifi_manage.h"
 #include "web_mqtt_manager.h"
+#include "mqtt_app/wifi_config_app.h"
 
 static void app_mqtt_event_cb(web_mqtt_state_t state)
 {
@@ -33,6 +34,9 @@ static void app_wifi_event_cb(wifi_manage_state_t state)
 
         esp_err_t ret_mqtt = web_mqtt_manager_init(&mqtt_cfg);
         (void)ret_mqtt;
+
+        /* 注册基于 MQTT 的 WiFi 配置应用模块 */
+        (void)wifi_config_app_init();
 
         s_mqtt_started = 1;
     }

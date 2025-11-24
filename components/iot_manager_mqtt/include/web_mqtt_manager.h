@@ -123,5 +123,14 @@ typedef struct {
  *      - 其它 esp_err_t: 由底层组件返回的错误码
  */
 esp_err_t web_mqtt_manager_init(const web_mqtt_manager_config_t *config);
+/**
+ * @brief 获取当前 MQTT 客户端 ID（由管理器内部维护）
+ */
+const char *web_mqtt_manager_get_client_id(void);
+
+/**
+ * @brief 获取当前配置的基础下行 Topic 前缀（如 "xn/web"）
+ */
+const char *web_mqtt_manager_get_base_topic(void);
 
 #endif /* WEB_MQTT_MANAGER_H */

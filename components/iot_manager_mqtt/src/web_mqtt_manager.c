@@ -372,3 +372,13 @@ esp_err_t web_mqtt_manager_register_app(const char *topic_suffix,
 
     return ESP_OK;                                  ///< 返回成功
 }
+
+const char *web_mqtt_manager_get_client_id(void)
+{
+    return s_mgr_cfg.client_id;
+}
+
+const char *web_mqtt_manager_get_base_topic(void)
+{
+    return s_mgr_cfg.base_topic;
+}

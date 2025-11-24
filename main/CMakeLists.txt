@@ -1,3 +1,3 @@
-idf_component_register(SRCS "main.c"
+idf_component_register(SRCS "main.c" "mqtt_app/wifi_config_app.c"
                        PRIV_REQUIRES xn_web_wifi_manger iot_manager_mqtt
-                       INCLUDE_DIRS "")
+                       INCLUDE_DIRS "." "mqtt_app")
