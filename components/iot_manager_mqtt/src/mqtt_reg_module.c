@@ -53,15 +53,48 @@ static esp_err_t mqtt_reg_module_on_message(const char    *topic,
                                             const uint8_t *payload,
                                             int            payload_len)
 {
-    (void)topic;                                   ///< 当前未细分不同子命令
-    (void)topic_len;                               ///< 未使用长度
-    (void)payload;                                 ///< 具体格式留给业务调整
-    (void)payload_len;                             ///< 未使用长度
+    (void)payload;
+    (void)payload_len;
 
-    ESP_LOGI(TAG, "recv reg message, mark as registered"); ///< 打印日志
-    s_registered = true;                           ///< 标记设备已注册
+    if (s_mgr_cfg == NULL || s_mgr_cfg->base_topic == NULL || topic == NULL) {
+        return ESP_OK;
+    }
 
-    return ESP_OK;                                 ///< 返回成功
+    const char *device_id = mqtt_reg_get_device_id();
+    if (device_id == NULL || device_id[0] == '\0') {
+        return ESP_OK;
+    }
+
+    char prefix[128];
+    int  n = snprintf(prefix, sizeof(prefix), "%s/reg/", s_mgr_cfg->base_topic);
+    if (n <= 0 || n >= (int)sizeof(prefix)) {
+        return ESP_OK;
+    }
+
+    int prefix_len = n;
+    size_t dev_len = strlen(device_id);
+    int suffix_len = 5; /* strlen("/resp") */
+
+    if (topic_len != prefix_len + (int)dev_len + suffix_len) {
+        return ESP_OK;
+    }
+
+    if (memcmp(topic, prefix, prefix_len) != 0) {
+        return ESP_OK;
+    }
+
+    if (memcmp(topic + prefix_len, device_id, dev_len) != 0) {
+        return ESP_OK;
+    }
+
+    if (memcmp(topic + prefix_len + (int)dev_len, "/resp", (size_t)suffix_len) != 0) {
+        return ESP_OK;
+    }
+
+    ESP_LOGI(TAG, "recv reg message, mark as registered");
+    s_registered = true;
+
+    return ESP_OK;
 }
 
 esp_err_t mqtt_reg_module_init(const web_mqtt_manager_config_t *mgr_cfg)
