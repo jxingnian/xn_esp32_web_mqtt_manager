@@ -116,22 +116,22 @@ esp_err_t mqtt_module_init(const mqtt_module_config_t *config)
     }
 
     /* 构造 esp-mqtt 配置 */
-    esp_mqtt_client_config_t mqtt_cfg = {0};       ///< 清零配置结构体
+    esp_mqtt_client_config_t mqtt_cfg = (esp_mqtt_client_config_t){ 0 }; ///< 清零配置结构体
 
-    mqtt_cfg.uri = s_mqtt_cfg.broker_uri;          ///< 设置服务器 URI
+    mqtt_cfg.broker.address.uri = s_mqtt_cfg.broker_uri; ///< 设置服务器 URI
 
     if (s_mqtt_cfg.client_id != NULL) {            ///< 如配置了 client_id
-        mqtt_cfg.client_id = s_mqtt_cfg.client_id; ///< 则传递给底层
+        mqtt_cfg.credentials.client_id = s_mqtt_cfg.client_id; ///< 则传递给底层
     }
     if (s_mqtt_cfg.username != NULL) {             ///< 如配置了用户名
-        mqtt_cfg.username = s_mqtt_cfg.username;   ///< 则传递给底层
+        mqtt_cfg.credentials.username = s_mqtt_cfg.username;   ///< 则传递给底层
     }
     if (s_mqtt_cfg.password != NULL) {             ///< 如配置了密码
-        mqtt_cfg.password = s_mqtt_cfg.password;   ///< 则传递给底层
+        mqtt_cfg.credentials.authentication.password = s_mqtt_cfg.password; ///< 则传递给底层
     }
 
     if (s_mqtt_cfg.keepalive_sec > 0) {            ///< 配置了 keepalive
-        mqtt_cfg.keepalive = (uint16_t)s_mqtt_cfg.keepalive_sec; ///< 使用该值
+        mqtt_cfg.session.keepalive = (uint16_t)s_mqtt_cfg.keepalive_sec; ///< 使用该值
     }
 
     /* 创建 MQTT 客户端实例 */
