@@ -125,23 +125,23 @@ define('XN_INGEST_SHARED_SECRET', 'your-strong-secret');
   ```json
   {
     "client_id": "dev-001",
-    "topic": "xn/web/dev-001/hb",
+    "topic": "xn/esp/hb",
     "payload": "..."   // 可以是字符串或对象
   }
   ```
 - 表单 POST：
   ```
-  client_id=dev-001&topic=xn/web/dev-001/hb&payload=...
+  client_id=dev-001&topic=xn/esp/hb&payload=...
   ```
 
 **在 MQTT 服务器中配置规则的思路：**
 
-- 条件：匹配你的心跳 Topic（例如 `xn/web/+/hb`）或其他需要统计的 Topic；
+- 条件：匹配设备上行 Topic（例如 `xn/esp/hb`、`xn/esp/reg/query`，或统一使用 `xn/esp/#`）；
 - 动作：HTTP POST 到：
   - `http://你的域名/api/mqtt_ingest.php?token=你的共享密钥`
   - 使用 HTTP 动作的默认 JSON 请求体（无需自定义 Body 模板），其中会包含规则 SQL 导出的 `client_id` / `topic` / `payload` 字段。
 
-只要设备通过 MQTT 按约定 Topic 上报心跳 + 规则转发到本接口，后台就会自动维护设备列表和在线状态。
+只要设备通过 MQTT 按约定 Topic 上行 + 规则转发到本接口，后台就会自动维护设备列表和在线状态。
 
 ### 4.4 网站作为 MQTT 客户端（发送指令）
 
@@ -192,11 +192,11 @@ define('XN_INGEST_SHARED_SECRET', 'your-strong-secret');
      topic,
      payload
    FROM
-     "xn/web/#"
+     "xn/esp/#"
    ```
 
-   - `"xn/web/#"` 对应你的 `base_topic`（例如 `xn/web`）；
-   - 也可以只统计心跳 Topic，如 `"xn/web/+/hb"`。
+   - `"xn/esp/#"` 用于匹配设备上行 Topic（例如 `xn/esp/hb`、`xn/esp/reg/query`）；
+   - 也可以只统计心跳 Topic，如 `"xn/esp/hb"`。
 
 2. 为规则添加 **动作**：HTTP 请求（发送数据到 Web 服务器）。
 
@@ -209,7 +209,7 @@ define('XN_INGEST_SHARED_SECRET', 'your-strong-secret');
    ```json
    {
      "client_id": "ESP32_XXXXXX",
-     "topic": "xn/web/ESP32_XXXXXX/hb",
+     "topic": "xn/esp/hb",
      "payload": "..."
    }
    ```

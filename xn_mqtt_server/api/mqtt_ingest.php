@@ -81,9 +81,9 @@ $insMsg->execute([
     ':ts' => $now,
 ]);
 
-// 处理设备注册查询：当 Topic 为 base_topic + "/reg/query" 时，标记已注册并回复一条 MQTT 消息
+// 处理设备注册查询：当 Topic 为上行前缀 + "/reg/query" 时，标记已注册并回复一条 MQTT 消息
 if ($topic !== '') {
-    $regPrefix = XN_MQTT_BASE_TOPIC . '/reg/query';
+    $regPrefix = XN_MQTT_UPLINK_BASE_TOPIC . '/reg/query';
     if (strpos($topic, $regPrefix) === 0) {
         // 在 meta_json 中记录注册标志
         $meta = [];

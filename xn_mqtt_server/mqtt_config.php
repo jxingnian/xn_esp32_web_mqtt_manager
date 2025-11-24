@@ -31,3 +31,4 @@ define('XN_MQTT_KEEPALIVE', 60);
 
 // 可选：网站常用的 Topic 前缀（应与设备端 base_topic 对应）
 define('XN_MQTT_BASE_TOPIC', 'xn/web');
+define('XN_MQTT_UPLINK_BASE_TOPIC', 'xn/esp');

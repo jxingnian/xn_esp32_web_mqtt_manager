@@ -60,6 +60,10 @@ typedef void (*web_mqtt_event_cb_t)(web_mqtt_state_t state);
 #define WEB_MQTT_DEFAULT_PASSWORD "xn_mqtt_pass" ///< 默认 MQTT 密码
 #endif
 
+#ifndef WEB_MQTT_UPLINK_BASE_TOPIC
+#define WEB_MQTT_UPLINK_BASE_TOPIC "xn/esp"
+#endif
+
 /**
  * @brief Web MQTT 管理器配置
  *

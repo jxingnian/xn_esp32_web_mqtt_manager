@@ -60,7 +60,7 @@ static void mqtt_hb_task(void *arg)
     const char *device_id = mqtt_hb_get_device_id(); ///< 设备 ID 字符串
 
     /* 预构造心跳 Topic: base_topic + "/hb" */
-    snprintf(topic, sizeof(topic), "%s/hb", s_mgr_cfg->base_topic);
+    snprintf(topic, sizeof(topic), "%s/hb", WEB_MQTT_UPLINK_BASE_TOPIC);
 
     for (;;) {                                     ///< 永久循环
         vTaskDelay(pdMS_TO_TICKS(MQTT_HEARTBEAT_INTERVAL_MS)); ///< 按间隔休眠

@@ -128,7 +128,7 @@ void mqtt_reg_module_on_connected(void)
     const char *device_id = mqtt_reg_get_device_id(); ///< 设备 ID 字符串
 
     /* 约定查询 Topic: base_topic + "/reg/query" */
-    snprintf(topic, sizeof(topic), "%s/reg/query", s_mgr_cfg->base_topic);
+    snprintf(topic, sizeof(topic), "%s/reg/query", WEB_MQTT_UPLINK_BASE_TOPIC);
 
     ESP_LOGI(TAG, "send reg query, id=%s, topic=%s", ///< 打印日志
              device_id, topic);                      ///< 设备 ID 与 Topic
