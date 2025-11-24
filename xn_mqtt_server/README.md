@@ -143,7 +143,44 @@ define('XN_INGEST_SHARED_SECRET', 'your-strong-secret');
 
 只要设备通过 MQTT 按约定 Topic 上报心跳 + 规则转发到本接口，后台就会自动维护设备列表和在线状态。
 
-#### 4.4 EMQX 规则配置示例
+### 4.4 网站作为 MQTT 客户端（发送指令）
+
+网站本身也可以作为一个 MQTT 客户端连接 EMQX，用于向设备发送指令：
+
+- 配置文件：`mqtt_config.php`
+
+  ```php
+  define('XN_MQTT_HOST', '127.0.0.1');   // EMQX 地址
+  define('XN_MQTT_PORT', 1883);          // 端口
+  define('XN_MQTT_CLIENT_ID', 'xn_mqtt_server');
+  define('XN_MQTT_USERNAME', 'xn_mqtt');
+  define('XN_MQTT_PASSWORD', 'xn_mqtt_pass');
+  define('XN_MQTT_KEEPALIVE', 60);
+  define('XN_MQTT_BASE_TOPIC', 'xn/web');
+  ```
+
+- MQTT 客户端类：`lib/MqttClient.php`（纯 PHP 实现的简单 MQTT 3.1.1 客户端）。
+
+- 发送指令接口：`api/mqtt_publish.php`
+
+  仅允许已登录的后台管理员调用，可通过 AJAX/POST 调用：
+
+  ```http
+  POST /api/mqtt_publish.php
+  Content-Type: application/json
+
+  {
+    "topic": "xn/web/dev-001/cmd",
+    "payload": "{\"action\":\"reboot\"}",
+    "retain": false
+  }
+  ```
+
+  服务端会使用 `mqtt_config.php` 中的配置连接 EMQX，并向指定 Topic 发布消息。
+
+> 注意：订阅场景建议仍由 EMQX 通过 HTTP 规则转发到网站；网站内置的 MQTT 客户端主要用于向设备主动发送指令。
+
+#### 4.5 EMQX 规则配置示例
 
 以 EMQX Dashboard 为例（其他 MQTT 服务器可类比）：
 
