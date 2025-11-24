@@ -3,7 +3,7 @@
  * @Author: 星年 && jixingnian@gmail.com
  * @Date: 2025-11-24 14:56:51
  * @LastEditors: xingnian jixingnian@gmail.com
- * @LastEditTime: 2025-11-24 14:57:37
+ * @LastEditTime: 2025-11-24 15:01:19
  * @FilePath: \xn_web_mqtt_manager\xn_mqtt_server\mqtt_config.php
  * @Description: 
  * 
@@ -23,8 +23,8 @@ define('XN_MQTT_CLIENT_ID', 'xn_mqtt_server');
 // 建议与设备端组件的默认值保持一致，或者统一约定好：
 //   WEB_MQTT_DEFAULT_USERNAME / WEB_MQTT_DEFAULT_PASSWORD
 // 然后在 EMQX 中创建对应账号。
-define('XN_MQTT_USERNAME', 'xn_mqtt');
-define('XN_MQTT_PASSWORD', 'xn_mqtt_pass');
+define('XN_MQTT_USERNAME', 'xn_mqtt_server');
+define('XN_MQTT_PASSWORD', 'xn_mqtt_server_pass');
 
 // 保活时间（秒）
 define('XN_MQTT_KEEPALIVE', 60);

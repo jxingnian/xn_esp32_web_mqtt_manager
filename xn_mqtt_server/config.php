@@ -3,7 +3,7 @@
  * @Author: 星年 && jixingnian@gmail.com
  * @Date: 2025-11-24 14:07:05
  * @LastEditors: xingnian jixingnian@gmail.com
- * @LastEditTime: 2025-11-24 14:57:01
+ * @LastEditTime: 2025-11-24 15:04:16
  * @FilePath: \xn_web_mqtt_manager\xn_mqtt_server\config.php
  * @Description: 
  * 
@@ -28,7 +28,7 @@ define('XN_DEFAULT_ADMIN_PASS', 'admin123');
 
 // HTTP API 共享密钥（供 MQTT 规则引擎调用），为空字符串表示不校验
 // 强烈建议上线前改成复杂随机字符串，并在规则中以 ?token=XXX 方式传入
-define('XN_INGEST_SHARED_SECRET', '');
+define('XN_INGEST_SHARED_SECRET', 'Li2k0e3mVRW4akNjvmwK');
 
 // 多久未收到心跳视为离线（秒）
 define('XN_DEVICE_OFFLINE_SECONDS', 90);
