@@ -2,7 +2,7 @@
  * @Author: 星年 && jixingnian@gmail.com
  * @Date: 2025-11-24 12:41:00
  * @LastEditors: xingnian jixingnian@gmail.com
- * @LastEditTime: 2025-11-24 15:07:49
+ * @LastEditTime: 2025-11-24 15:12:46
  * @FilePath: \xn_web_mqtt_manager\components\iot_manager_mqtt\src\web_mqtt_manager.c
  * @Description: Web MQTT 管理器实现（基于 mqtt_module 封装状态机与重连逻辑）
  * 
@@ -18,11 +18,13 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <stdint.h>
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
 #include "esp_log.h"
+#include "esp_mac.h"
 
 #include "mqtt_module.h"
 #include "mqtt_app_module.h"
@@ -38,6 +40,9 @@ static web_mqtt_manager_config_t s_mgr_cfg;        ///< 上层传入的管理配
 static web_mqtt_state_t          s_mgr_state = WEB_MQTT_STATE_DISCONNECTED; ///< 当前状态
 static TaskHandle_t              s_mgr_task  = NULL; ///< 管理任务句柄
 static TickType_t                s_last_error_ts = 0; ///< 最近一次错误/断开的时间戳
+
+/* 若上层未指定 client_id，则使用该缓冲区生成一个基于 MAC 的默认 ID */
+static char s_client_id_buf[32];
 
 /* 应用模块注册表配置 */
 #define WEB_MQTT_APP_MAX_NUM         8            ///< 支持的应用模块最大数量
@@ -61,6 +66,33 @@ static void web_mqtt_manager_notify_state(web_mqtt_state_t new_state)
     if (s_mgr_cfg.event_cb) {                      ///< 如上层配置了回调
         s_mgr_cfg.event_cb(new_state);             ///< 通知上层当前状态
     }
+}
+
+/**
+ * @brief 确保管理器配置中存在有效的 client_id
+ *
+ * 若上层未提供（NULL 或空串），则基于芯片 MAC 生成形如
+ * "ESP32_XXXXXXXXXXXX" 的默认 client_id，保证单设备唯一。
+ */
+static void web_mqtt_manager_ensure_client_id(void)
+{
+    if (s_mgr_cfg.client_id != NULL &&            ///< 已显式配置
+        s_mgr_cfg.client_id[0] != '\0') {        ///< 且非空串
+        return;                                    ///< 直接使用上层提供的值
+    }
+
+    uint8_t mac[6] = {0};                         ///< MAC 地址缓冲区
+    esp_err_t err = esp_read_mac(mac, ESP_MAC_WIFI_STA); ///< 读取 STA MAC
+    if (err != ESP_OK) {                          ///< 读取失败
+        snprintf(s_client_id_buf, sizeof(s_client_id_buf),
+                 "ESP32_UNKNOWN");              ///< 退化为占位 ID
+    } else {
+        snprintf(s_client_id_buf, sizeof(s_client_id_buf),
+                 "ESP32_%02X%02X%02X%02X%02X%02X",
+                 mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    }
+
+    s_mgr_cfg.client_id = s_client_id_buf;        ///< 填入默认 client_id
 }
 
 /**
@@ -233,6 +265,9 @@ esp_err_t web_mqtt_manager_init(const web_mqtt_manager_config_t *config)
         s_mgr_cfg.broker_uri[0] == '\0') {        ///< 或者空字符串
         return ESP_ERR_INVALID_ARG;                ///< 返回参数错误
     }
+
+    /* 若未指定 client_id，则基于 MAC 生成一个默认 client_id */
+    web_mqtt_manager_ensure_client_id();
 
     /* 组装 MQTT 模块配置 */
     mqtt_module_config_t mqtt_cfg = MQTT_MODULE_DEFAULT_CONFIG(); ///< 基础配置

@@ -4,6 +4,8 @@
 
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../db.php';
+require_once __DIR__ . '/../mqtt_config.php';
+require_once __DIR__ . '/../lib/MqttClient.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -55,13 +57,62 @@ $now = date('Y-m-d H:i:s');
 $ip  = $_SERVER['REMOTE_ADDR'] ?? null;
 
 // 简单更新在线信息
-$upd = $db->prepare('UPDATE devices SET last_seen_at = :ls, last_ip = :ip, updated_at = :u WHERE id = :id');
-$upd->execute([
+ $upd = $db->prepare('UPDATE devices SET last_seen_at = :ls, last_ip = :ip, updated_at = :u WHERE id = :id');
+ $upd->execute([
     ':ls' => $now,
     ':ip' => $ip,
     ':u'  => $now,
     ':id' => $device['id'],
 ]);
+
+// 处理设备注册查询：当 Topic 为 base_topic + "/reg/query" 时，标记已注册并回复一条 MQTT 消息
+if ($topic !== '') {
+    $regPrefix = XN_MQTT_BASE_TOPIC . '/reg/query';
+    if (strpos($topic, $regPrefix) === 0) {
+        // 在 meta_json 中记录注册标志
+        $meta = [];
+        if (!empty($device['meta_json'])) {
+            $decoded = json_decode($device['meta_json'], true);
+            if (is_array($decoded)) {
+                $meta = $decoded;
+            }
+        }
+        $meta['registered']     = true;
+        $meta['registered_at']  = $now;
+
+        $metaJson = json_encode($meta, JSON_UNESCAPED_UNICODE);
+
+        $updMeta = $db->prepare('UPDATE devices SET meta_json = :meta, updated_at = :u WHERE id = :id');
+        $updMeta->execute([
+            ':meta' => $metaJson,
+            ':u'    => $now,
+            ':id'   => $device['id'],
+        ]);
+
+        // 通过网站内置 MQTT 客户端给设备回复一条注册成功消息
+        try {
+            $mqtt = new XnMqttClient(
+                XN_MQTT_HOST,
+                XN_MQTT_PORT,
+                XN_MQTT_CLIENT_ID,
+                XN_MQTT_USERNAME,
+                XN_MQTT_PASSWORD,
+                XN_MQTT_KEEPALIVE
+            );
+
+            $replyTopic = rtrim(XN_MQTT_BASE_TOPIC, '/') . '/reg/' . $clientId . '/resp';
+            $replyBody  = json_encode([
+                'status'     => 'ok',
+                'device_id'  => $clientId,
+                'registered' => true,
+            ], JSON_UNESCAPED_UNICODE);
+
+            $mqtt->publish($replyTopic, $replyBody, false);
+        } catch (Throwable $e) {
+            // 注册回复失败不会影响 HTTP 返回，必要时可在这里加日志
+        }
+    }
+}
 
 // 如需根据 topic / payload 做更进一步的业务（如注册、配置），
 // 可在此处解析 $topic / $payload 并更新 meta_json 等字段。
