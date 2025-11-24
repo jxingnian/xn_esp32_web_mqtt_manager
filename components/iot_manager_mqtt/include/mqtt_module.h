@@ -2,7 +2,7 @@
  * @Author: 星年 && jixingnian@gmail.com
  * @Date: 2025-11-24 12:40:00
  * @LastEditors: xingnian jixingnian@gmail.com
- * @LastEditTime: 2025-11-24 12:44:21
+ * @LastEditTime: 2025-11-24 14:08:18
  * @FilePath: \xn_web_mqtt_manager\components\iot_manager_mqtt\include\mqtt_module.h
  * @Description: MQTT 模块对外接口（仅负责 MQTT 客户端连接与事件上报）
  * 

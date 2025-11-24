@@ -2,7 +2,7 @@
  * @Author: 星年 && jixingnian@gmail.com
  * @Date: 2025-11-24 12:17:40
  * @LastEditors: xingnian jixingnian@gmail.com
- * @LastEditTime: 2025-11-24 12:44:16
+ * @LastEditTime: 2025-11-24 14:51:38
  * @FilePath: \xn_web_mqtt_manager\components\iot_manager_mqtt\include\web_mqtt_manager.h
  * @Description: Web MQTT 管理器
  * 
@@ -47,6 +47,20 @@ typedef enum {
 typedef void (*web_mqtt_event_cb_t)(web_mqtt_state_t state);
 
 /**
+ * @brief Web MQTT 默认认证信息
+ *
+ * 若上层未在配置结构体中显式设置 username/password，将使用这里的默认值。
+ * 可通过编译选项 -DWEB_MQTT_DEFAULT_USERNAME="xxx" 等方式在工程级别覆盖。
+ */
+#ifndef WEB_MQTT_DEFAULT_USERNAME
+#define WEB_MQTT_DEFAULT_USERNAME "xn_mqtt"     ///< 默认 MQTT 用户名
+#endif
+
+#ifndef WEB_MQTT_DEFAULT_PASSWORD
+#define WEB_MQTT_DEFAULT_PASSWORD "xn_mqtt_pass" ///< 默认 MQTT 密码
+#endif
+
+/**
  * @brief Web MQTT 管理器配置
  *
  * 该结构体仅在初始化时读取一次，之后由管理器内部持有副本。
@@ -79,8 +93,8 @@ typedef struct {
     (web_mqtt_manager_config_t) {                                      \
         .broker_uri            = NULL,                                 \
         .client_id             = NULL,                                 \
-        .username              = NULL,                                 \
-        .password              = NULL,                                 \
+        .username              = WEB_MQTT_DEFAULT_USERNAME,            \
+        .password              = WEB_MQTT_DEFAULT_PASSWORD,            \
         .base_topic            = NULL,                                 \
         .keepalive_sec         = 60,                                   \
         .reconnect_interval_ms = 5000,                                 \
