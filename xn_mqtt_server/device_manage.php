@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/mqtt_config.php';
 xn_require_login();
 
 $db = xn_get_db();
