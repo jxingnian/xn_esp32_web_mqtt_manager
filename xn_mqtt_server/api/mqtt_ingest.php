@@ -20,6 +20,13 @@ if (XN_INGEST_SHARED_SECRET !== '') {
 }
 
 $raw  = file_get_contents('php://input');
+$logLine = sprintf(
+    "[%s] ip=%s raw=%s\n",
+    date('Y-m-d H:i:s'),
+    $_SERVER['REMOTE_ADDR'] ?? '-',
+    $raw
+);
+@file_put_contents(__DIR__ . '/../mqtt_ingest.log', $logLine, FILE_APPEND);
 $data = json_decode($raw, true);
 
 $clientId = '';

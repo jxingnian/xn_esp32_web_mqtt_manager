@@ -3,13 +3,12 @@
  * @Author: 星年 && jixingnian@gmail.com
  * @Date: 2025-11-24 14:07:05
  * @LastEditors: xingnian jixingnian@gmail.com
- * @LastEditTime: 2025-11-24 16:01:53
+ * @LastEditTime: 2025-11-24 16:45:37
  * @FilePath: \xn_esp32_web_mqtt_manager\xn_mqtt_server\config.php
- * @Description: 
+ * @Description: 基础配置
  * 
  * Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 
  */
-// 基础配置
 
 // MySQL 数据库连接配置（请按宝塔中创建的数据库信息修改）
 define('XN_DB_HOST', '127.0.0.1');      // 数据库主机
