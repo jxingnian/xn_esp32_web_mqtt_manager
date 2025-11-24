@@ -4,6 +4,14 @@ xn_require_login();
 
 $db = xn_get_db();
 
+$lastMsg = null;
+try {
+    $stmtLast = $db->query('SELECT client_id, topic, payload, created_at FROM mqtt_messages ORDER BY id DESC LIMIT 1');
+    $lastMsg  = $stmtLast->fetch();
+} catch (Throwable $e) {
+    $lastMsg = null;
+}
+
 $q     = trim((string)($_GET['q'] ?? ''));
 $sort  = (string)($_GET['sort'] ?? 'last_seen');
 $order = (string)($_GET['order'] ?? 'desc');
@@ -119,6 +127,33 @@ include __DIR__ . '/header.php';
         <?php endif; ?>
         </tbody>
     </table>
-</div>
+ </div>
+
+ <?php if ($lastMsg): ?>
+     <div style="margin-top: 16px;">
+         <div class="card">
+             <h3>最近一条 MQTT 消息</h3>
+             <div style="font-size: 12px; color: #666; margin-bottom: 6px;">
+                 时间：<?php echo htmlspecialchars($lastMsg['created_at'], ENT_QUOTES, 'UTF-8'); ?>
+             </div>
+             <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
+                 Client ID：<?php echo htmlspecialchars($lastMsg['client_id'], ENT_QUOTES, 'UTF-8'); ?>
+             </div>
+             <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
+                 Topic：<?php echo htmlspecialchars($lastMsg['topic'], ENT_QUOTES, 'UTF-8'); ?>
+             </div>
+             <div style="font-size: 12px; color: #666; margin-top: 4px;">
+                 Payload：
+                 <pre style="white-space: pre-wrap; word-break: break-all; background:#fafafa; padding:6px; border-radius:4px; border:1px solid #eee; margin:4px 0 0;">
+<?php
+$payload = (string)($lastMsg['payload'] ?? '');
+$display = strlen($payload) > 500 ? substr($payload, 0, 500) . "\n..." : $payload;
+echo htmlspecialchars($display, ENT_QUOTES, 'UTF-8');
+?>
+                 </pre>
+             </div>
+         </div>
+     </div>
+ <?php endif; ?>
 
 <?php include __DIR__ . '/footer.php'; ?>

@@ -65,6 +65,15 @@ $ip  = $_SERVER['REMOTE_ADDR'] ?? null;
     ':id' => $device['id'],
 ]);
 
+$insMsg = $db->prepare('INSERT INTO mqtt_messages (client_id, topic, payload, created_at)
+                         VALUES (:c, :t, :p, :ts)');
+$insMsg->execute([
+    ':c'  => $clientId,
+    ':t'  => $topic,
+    ':p'  => $payload,
+    ':ts' => $now,
+]);
+
 // 处理设备注册查询：当 Topic 为 base_topic + "/reg/query" 时，标记已注册并回复一条 MQTT 消息
 if ($topic !== '') {
     $regPrefix = XN_MQTT_BASE_TOPIC . '/reg/query';

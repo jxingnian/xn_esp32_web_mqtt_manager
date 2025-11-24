@@ -55,6 +55,15 @@ function xn_init_schema(PDO $db): void
         updated_at DATETIME NOT NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=' . XN_DB_CHARSET);
 
+    // MQTT 消息表
+    $db->exec('CREATE TABLE IF NOT EXISTS mqtt_messages (
+        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        client_id VARCHAR(128) NOT NULL,
+        topic VARCHAR(255) NOT NULL,
+        payload TEXT NULL,
+        created_at DATETIME NOT NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=' . XN_DB_CHARSET);
+
     // 默认管理员
     $stmt = $db->query('SELECT COUNT(*) AS c FROM users');
     $row  = $stmt->fetch();
