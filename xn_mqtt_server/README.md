@@ -139,7 +139,7 @@ define('XN_INGEST_SHARED_SECRET', 'your-strong-secret');
 - 条件：匹配你的心跳 Topic（例如 `xn/web/+/hb`）或其他需要统计的 Topic；
 - 动作：HTTP POST 到：
   - `http://你的域名/api/mqtt_ingest.php?token=你的共享密钥`
-  - Body 中携带 `client_id` / `topic` / `payload`。
+  - 使用 HTTP 动作的默认 JSON 请求体（无需自定义 Body 模板），其中会包含规则 SQL 导出的 `client_id` / `topic` / `payload` 字段。
 
 只要设备通过 MQTT 按约定 Topic 上报心跳 + 规则转发到本接口，后台就会自动维护设备列表和在线状态。
 
@@ -202,15 +202,17 @@ define('XN_INGEST_SHARED_SECRET', 'your-strong-secret');
 
    - 方法：`POST`
    - URL：`http://你的域名/api/mqtt_ingest.php?token=你的共享密钥`
-   - Body 建议选择 `application/json`，并映射字段：
+   - Body：保持 EMQX 默认设置（同样为 `application/json`），**不需要额外配置模板**。
 
-     ```json
-     {
-       "client_id": "${client_id}",
-       "topic": "${topic}",
-       "payload": "${payload}"
-     }
-     ```
+   EMQX 会自动将规则 SQL 的输出序列化为 JSON，例如：
+
+   ```json
+   {
+     "client_id": "ESP32_XXXXXX",
+     "topic": "xn/web/ESP32_XXXXXX/hb",
+     "payload": "..."
+   }
+   ```
 
    这样，EMQX 收到匹配 Topic 的消息后，就会把 `client_id`、`topic`、`payload` 通过 HTTP 转发到网站，由网站更新设备在线状态。
 

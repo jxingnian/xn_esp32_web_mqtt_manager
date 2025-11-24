@@ -13,7 +13,15 @@ if ($id <= 0) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = (string)($_POST['action'] ?? '');
-    $mode   = $action === 'start' ? 1 : 0;
+
+    if ($action === 'delete') {
+        $del = $db->prepare('DELETE FROM devices WHERE id = :id');
+        $del->execute([':id' => $id]);
+        header('Location: index.php');
+        exit;
+    }
+
+    $mode = $action === 'start' ? 1 : 0;
 
     $upd = $db->prepare('UPDATE devices SET manage_mode = :m, updated_at = :u WHERE id = :id');
     $upd->execute([
@@ -65,6 +73,7 @@ include __DIR__ . '/header.php';
     <?php else: ?>
         <button type="submit" name="action" value="start" class="btn btn-primary">进入管理模式</button>
     <?php endif; ?>
+    <button type="submit" name="action" value="delete" class="btn btn-danger" style="margin-left:8px;" onclick="return confirm('确定要删除这个设备吗？此操作不可恢复。');">删除设备</button>
     <a href="index.php" class="btn" style="margin-left:8px;">返回</a>
 </form>
 

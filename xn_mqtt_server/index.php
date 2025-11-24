@@ -156,4 +156,16 @@ echo htmlspecialchars($display, ENT_QUOTES, 'UTF-8');
      </div>
  <?php endif; ?>
 
+ <script>
+ (function () {
+     var REFRESH_INTERVAL_MS = 5000; // 5 秒自动刷新一次
+     setInterval(function () {
+         if (document.hidden) {
+             return;
+         }
+         window.location.reload();
+     }, REFRESH_INTERVAL_MS);
+ })();
+ </script>
+
 <?php include __DIR__ . '/footer.php'; ?>
